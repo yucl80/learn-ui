@@ -1,0 +1,163 @@
+<head>
+  <style>
+    body {
+      margin: 0;
+    }
+  </style>
+
+  <script src="//unpkg.com/three"></script>
+  <script src="//unpkg.com/three-spritetext"></script>
+  <script src="//unpkg.com/three/examples/js/renderers/CSS2DRenderer.js"></script>
+  <script src="//unpkg.com/three/examples/js/postprocessing/Pass.js"></script>
+  <script src="//unpkg.com/three/examples/js/shaders/CopyShader.js"></script>
+  <script src="//unpkg.com/three/examples/js/shaders/LuminosityHighPassShader.js"></script>
+  <script src="//unpkg.com/three/examples/js/postprocessing/UnrealBloomPass.js"></script>
+  <script src="//unpkg.com/3d-force-graph"></script>
+  <!--  <script src="../../dist/3d-force-graph.js"></script>-->
+
+  <style>
+    .node-label {
+      font-size: 12px;
+      padding: 1px 4px;
+      border-radius: 1px;
+      background-color: rgba(0, 0, 0, 0.1);
+      user-select: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="3d-graph"></div>
+
+  <script>
+    function updateHighlight() {
+      // trigger update of highlighted objects in scene
+      Graph
+        .nodeColor(Graph.nodeColor())
+        .linkWidth(Graph.linkWidth())
+        .linkDirectionalParticles(Graph.linkDirectionalParticles());
+    }
+    const N = 80;
+    const gData = {
+      nodes: [...Array(N).keys()].map(i => ({ id: i, group: i % 9 })),
+      links: [...Array(N).keys()]
+        .filter(id => id)
+        .map(id => ({
+          source: id,
+          target: Math.round(Math.random() * (id - 1))
+        }))
+    };
+
+    // cross-link node objects
+    gData.links.forEach(link => {
+      const a = gData.nodes[link.source];
+      const b = gData.nodes[link.target];
+      !a.neighbors && (a.neighbors = []);
+      !b.neighbors && (b.neighbors = []);
+      a.neighbors.push(b);
+      b.neighbors.push(a);
+
+      !a.links && (a.links = []);
+      !b.links && (b.links = []);
+      a.links.push(link);
+      b.links.push(link);
+    });
+
+
+    const highlightNodes = new Set();
+    const highlightLinks = new Set();
+    let hoverNode = null;
+
+    const Graph = ForceGraph3D({
+      controlType: 'orbit',
+      extraRenderers: [new THREE.CSS2DRenderer()]
+    })
+      (document.getElementById('3d-graph'))
+      .graphData(gData)
+      .nodeAutoColorBy('group')
+      .nodeThreeObject(node => {
+        const nodeEl = document.createElement('div');
+        nodeEl.textContent = '道法啊打发' + node.id;
+        nodeEl.style.color = node.color;
+        //nodeEl.style.width = '80px';
+        //nodeEl.style.height = '60px';
+        //nodeEl.style.fill = '#ff0000';
+        nodeEl.className = 'node-label';
+        return new THREE.CSS2DObject(nodeEl);
+      })
+      .nodeThreeObjectExtend(true)
+      //.nodeColor(node => highlightNodes.has(node) ? node === hoverNode ? 'rgb(255,0,0,1)' : 'rgba(255,160,0,0.8)' : 'rgba(0,255,255,0.6)')
+      .linkWidth(link => highlightLinks.has(link) ? 2 : 1)
+      .linkDirectionalParticles(link => highlightLinks.has(link) ? 2 : 0)
+      .linkDirectionalParticleWidth(2)
+      .linkDirectionalArrowLength(1.5)
+      .linkDirectionalArrowRelPos(1)
+      .linkThreeObjectExtend(true)
+      .linkThreeObject(link => {
+        // extend link with text sprite
+        const sprite = new SpriteText(`${link.source} > ${link.target}`);
+        sprite.color = 'lightgrey';
+        sprite.textHeight = 1.5;
+        return sprite;
+      })
+      .linkPositionUpdate((sprite, { start, end }) => {
+        const middlePos = Object.assign(...['x', 'y', 'z'].map(c => ({
+          [c]: start[c] + (end[c] - start[c]) / 2 // calc middle point
+        })));
+
+        // Position sprite
+        Object.assign(sprite.position, middlePos);
+      })
+      .onNodeHover(node => {
+        // no state change
+        if ((!node && !highlightNodes.size) || (node && hoverNode === node)) return;
+
+        highlightNodes.clear();
+        highlightLinks.clear();
+        if (node) {
+          highlightNodes.add(node);
+          node.neighbors.forEach(neighbor => highlightNodes.add(neighbor));
+          node.links.forEach(link => highlightLinks.add(link));
+        }
+
+        hoverNode = node || null;
+
+        updateHighlight();
+      })
+      .onLinkHover(link => {
+        highlightNodes.clear();
+        highlightLinks.clear();
+
+        if (link) {
+          highlightLinks.add(link);
+          highlightNodes.add(link.source);
+          highlightNodes.add(link.target);
+        }
+
+        updateHighlight();
+      })
+      .onNodeClick(node => {
+        // Aim at node from outside it
+        const distance = 40;
+        const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
+
+        const newPos = node.x || node.y || node.z
+          ? { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }
+          : { x: 0, y: 0, z: distance }; // special case if node is in (0,0,0)
+
+        Graph.cameraPosition(
+          newPos, // new position
+          node, // lookAt ({ x, y, z })
+          3000  // ms transition duration
+        );
+      });
+    
+    const bloomPass = new THREE.UnrealBloomPass();
+    bloomPass.strength = 3;
+    bloomPass.radius = 1;
+    bloomPass.threshold = 0.1;
+    Graph.postProcessingComposer().addPass(bloomPass);
+
+    Graph.onEngineStop(() => Graph.zoomToFit(400));
+  </script>
+</body>

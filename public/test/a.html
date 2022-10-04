@@ -1,0 +1,48 @@
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="msapplication-tap-highlight" content="no">
+  <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+  <link rel='stylesheet' href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script>
+
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.2/select2.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.2/d3.min.js" charset="utf-8"></script>
+</head>
+
+<body>
+  <div id="graphDiv">
+
+  </div>
+
+  <script>   
+
+    $(function () {
+      // Example of using the API
+      var element = document.querySelector("#graphDiv");
+
+      var insertSvg = function (svgCode, bindFunctions) {
+        element.innerHTML = svgCode;
+      };
+      $.ajax({
+        url: "c4.mmd",
+        success: function (data) {
+          mermaid.mermaidAPI.initialize({ startOnLoad: true }); $(function () {
+            console.log(data);
+            var graphDefinition = data;
+            var graph = mermaid.mermaidAPI.render('graphDiv', graphDefinition, insertSvg);
+          });
+        }
+      });
+      // var graphDefinition = 'graph TB\n a-->b\n';
+      // var graph = mermaidAPI.render('graphDiv', graphDefinition, insertSvg);
+    });
+
+
+  </script>
+</body>

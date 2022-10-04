@@ -1,0 +1,17 @@
+<html>
+    <body>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+        <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+        <div id='graphDiv' style="width:1000px;height:800px"></div>
+     
+        <script>
+          mermaid.initialize({ startOnLoad: false,securityLevel: 'loose' });
+          element = document.querySelector("#graphDiv"); 
+          var insertSvg = function(svgCode, bindFunctions){
+            element.outerHTML = svgCode;
+           }; 
+        var graphDefinition = 'graph TB\na-->b';
+        var graph =mermaid.mermaidAPI.render('graphDiv', graphDefinition, insertSvg);
+        </script>
+    </body>
+</html>

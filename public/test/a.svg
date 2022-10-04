@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+
+<text x="45" y="63" font-size="20" fill="black">
+Peruse
+</text>
+
+<rect id="T" onclick="top.peruse('T')" 
+ x="30" y="40" height="30" width="100" 
+ stroke="black" stroke-width="2" fill="red" 
+ opacity=".4"/>
+
+</svg>

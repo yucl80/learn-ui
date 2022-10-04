@@ -1,0 +1,35 @@
+<html>
+    <body>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+        <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+        <div id='graphDiv' style="width:100%;height:100%"></div>
+        <embed id='obj'  type="image/svg+xml">
+        </embed>   
+        <script>
+          mermaid.initialize({ startOnLoad: false,securityLevel: 'loose' });
+
+       var element = document.getElementById("graphDiv");
+      var insertSvg = function (svgCode, bindFunctions) {
+        var obj = document.createElement('div');
+        obj.setAttribute('data','a.svg');
+        obj.style.width='800px';
+        obj.type = 'image/svg+xml';
+        obj.style.height='600px';  
+        element.appendChild(obj); 
+        obj.outerHTML = svgCode;
+        //var p= document.getElementById('cm');
+        //obj.style.dispaly='none';
+        //obj.style.display='block'; 
+       // element.appendChild(obj);       
+      };
+      $.ajax({
+        url: "b.mmd",
+        success: function (data) {               
+            var graphDefinition = data;
+            //console.log(data);
+            var graph = mermaid.mermaidAPI.render('co', graphDefinition, insertSvg);         
+        }
+      });
+        </script>
+    </body>
+</html>
