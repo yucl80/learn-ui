@@ -47,7 +47,7 @@ class D3Viz1 extends Component {
         switch (window.location.hostname) {
             case "localhost":
                 // document.write('<script type="text/javascript" src="./index.min.js"><' + '/script>');
-                wasmBinaryFile = "./graphvizlib.wasm";
+                wasmBinaryFile = "viz/graphvizlib.wasm";
                 break;
             default:
                 //document.write('<script src="https://cdn.jsdelivr.net/npm/@hpcc-js/wasm/dist/index.min.js"><' + '/script>');
@@ -76,7 +76,7 @@ class D3Viz1 extends Component {
 
     render() {
         const script = document.createElement('script')
-        script.src = 'viz/index.min.js';
+        script.src = './viz/index.min.js';
         document.head.append(script)
         return (
             <div>
