@@ -1,9 +1,10 @@
 import React, { Component } from "react";
+
 //import * as _d3 from 'd3'
 //import { graphviz } from 'd3-graphviz'
 //import * as hpccWasm from "@hpcc-js/wasm";
 //import { wasmFolder } from "@hpcc-js/wasm";
-
+import html2canvas from "html2canvas";
 
 class D3Viz1 extends Component {
 
@@ -63,7 +64,42 @@ class D3Viz1 extends Component {
         }).then(wasmBinary => {
             let hpccWasm = window["@hpcc-js/wasm"];
             hpccWasm.graphviz.layout(this.data(), "svg", "dot", { wasmBinary: wasmBinary }).then(svg => {
-                this.mount.innerHTML = svg;
+                // this.mount.innerHTML = svg;
+                var img = new Image();
+                var svgData = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+                var DOMURL = URL || window.webkitURL;
+                var url = DOMURL.createObjectURL(svgData);
+                img.src = url;
+                //document.getElementById('placeholder').appendChild(img);
+                img.onload = function () {
+                    var canvas = document.getElementById('canvas');
+                    var ctx = canvas.getContext('2d');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    console.log(img.width);
+
+                    const fakeLink = window.document.createElement("a");
+                    fakeLink.style = "display:block;";
+                    fakeLink.innerText = "download";
+                    fakeLink.download = "image1.png";
+                    fakeLink.href = canvas.toDataURL("image/png", 1.0);
+                    document.getElementById('placeholder').appendChild(fakeLink);
+
+                    const exportAsImage = async (el, imageFileName) => {
+                        const canvas = await html2canvas(document.getElementById('pp'));
+                        const image = canvas.toDataURL("image/png", 1.0);
+                        const fakeLink = window.document.createElement("a");
+                        fakeLink.style = "display:block;";
+                        fakeLink.download = "test.png";
+                        fakeLink.innerText = "download2";
+                        fakeLink.href = image;
+                        document.getElementById('root').appendChild(fakeLink);
+
+                    };
+                    exportAsImage();
+                };
+
             }).catch(err => console.error(err.message));
             // })
 
@@ -75,11 +111,16 @@ class D3Viz1 extends Component {
 
 
     render() {
-        const script = document.createElement('script')
+        const script = document.createElement('script');
         script.src = './viz/index.min.js';
-        document.head.append(script)
+        document.head.append(script);
+       
         return (
-            <div>
+            <div id="pp" ref={ref => (this.pp = ref)}>
+                <div >
+                    <canvas id="canvas"  >
+                    </canvas>
+                </div>
                 <div id="placeholder"></div>
                 <div id="placeholder2"></div>
                 <div id="placeholder2b"></div>
