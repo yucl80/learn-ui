@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { CSS3DRenderer, CSS3DObject, CSS3DSprite } from 'three-css3d'
 import { PlaneGeometry } from "three";
+//import style from './App.css';
 
 const style = {
     height: 760 // we can control scene size by setting container dimensions

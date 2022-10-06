@@ -4,23 +4,27 @@ import ReactDOM from 'react-dom/client';
 //import App from './App';
 //import Test2 from './test2';
 import reportWebVitals from './reportWebVitals';
-//import Test6 from './test6';
+import Test6 from './test6';
 //import MyComponent from './mycomponent';
-import D3Viz from './testd3';
-import D3Viz1 from './testd4';
+//import D3Viz from './testd3';
+//import D3Viz1 from './testd4';
+//import Test3 from './test3/test3';
+//import Tgraph from './tgraph/tgraph';
+//import R1 from './r1/r1';
+import R3 from './R3';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 //const rootElement = document.getElementById("root");
 
-
+/*
 root.render(
   <React.StrictMode>  
-    
-    <D3Viz1/>
+    <Tgraph/>
+   
   </React.StrictMode>
-);
+);*/
 
-//root.render(<div><D3Viz1/></div>);
+root.render(<div><R3 test={100} /></div>);
 
 
 console.log("run in index.js")

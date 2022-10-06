@@ -6,8 +6,14 @@ import React, { Component } from "react";
 //import { wasmFolder } from "@hpcc-js/wasm";
 import html2canvas from "html2canvas";
 
-class D3Viz1 extends Component {
 
+class D3Viz1 extends Component {
+    constructor(props) {
+        super(props);
+        // 创建一个 ref 来存储 textInput 的 DOM 元素
+        this.divRef = React.createRef();        
+      }
+  
     data() {
         const dot = `
             digraph G {
@@ -64,18 +70,20 @@ class D3Viz1 extends Component {
         }).then(wasmBinary => {
             let hpccWasm = window["@hpcc-js/wasm"];
             hpccWasm.graphviz.layout(this.data(), "svg", "dot", { wasmBinary: wasmBinary }).then(svg => {
-                // this.mount.innerHTML = svg;
+                this.mount.innerHTML = svg;
                 var img = new Image();
                 var svgData = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
                 var DOMURL = URL || window.webkitURL;
                 var url = DOMURL.createObjectURL(svgData);
                 img.src = url;
                 //document.getElementById('placeholder').appendChild(img);
+                const divRef = this.divRef;
                 img.onload = function () {
                     var canvas = document.getElementById('canvas');
                     var ctx = canvas.getContext('2d');
                     canvas.width = img.width;
                     canvas.height = img.height;
+                   // divRef.style='dispaly:none';
                     ctx.drawImage(img, 0, 0);
                     console.log(img.width);
 
@@ -86,8 +94,8 @@ class D3Viz1 extends Component {
                     fakeLink.href = canvas.toDataURL("image/png", 1.0);
                     document.getElementById('placeholder').appendChild(fakeLink);
 
-                    const exportAsImage = async (el, imageFileName) => {
-                        const canvas = await html2canvas(document.getElementById('pp'));
+                    const exportAsImage = async (el, imageFileName) => {                       
+                        const canvas = await html2canvas(divRef.current);
                         const image = canvas.toDataURL("image/png", 1.0);
                         const fakeLink = window.document.createElement("a");
                         fakeLink.style = "display:block;";
@@ -116,8 +124,8 @@ class D3Viz1 extends Component {
         document.head.append(script);
        
         return (
-            <div id="pp" ref={ref => (this.pp = ref)}>
-                <div >
+            <div  >
+                <div ref={this.divRef}>
                     <canvas id="canvas"  >
                     </canvas>
                 </div>
